@@ -11,7 +11,7 @@ export default function Login() {
   const router = useRouter();
   const token = Cookies.get("jwt_token");
   if (token !== undefined) {
-    router.push("/home");
+    router.replace("/");
   }
   const [register, setRegister] = useState(false);
   const [name, setName] = useState("");
@@ -23,13 +23,16 @@ export default function Login() {
       const options = {
         method: "POST",
         body: JSON.stringify({ email, password }),
+        headers: {
+          "Content-Type": "application/json",
+        },
       };
       const request = await fetch(`${uri}/login/`, options);
       const response = await request.json();
       if (request.ok) {
         Cookies.set("jwt_token", response.jwtToken);
         Cookies.set("userId", response.dbUser?.userId);
-        router.push("/home");
+        router.replace("/");
       }
     } else {
       setErr("Please fill all the details");
@@ -40,13 +43,16 @@ export default function Login() {
       const options = {
         method: "POST",
         body: JSON.stringify({ name, password, email }),
+        headers: {
+          "Content-Type": "application/json",
+        },
       };
       const request = await fetch(`${uri}/users/`, options);
       const response = await request.json();
       if (request.ok) {
         Cookies.set("jwt_token", response.jwtToken);
         Cookies.set("userId", response.newUserId);
-        router.push("/home");
+        router.replace("/");
       }
     } else {
       setErr("Please fill all the details");

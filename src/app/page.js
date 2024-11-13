@@ -17,6 +17,9 @@ const TodoItem = (props) => {
     const options = {
       method: "PUT",
       body: JSON.stringify({ status: e.target.value }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     };
     const request = await fetch(`${uri}/todos/${id}/`, options);
     if (!request.ok) {
@@ -51,11 +54,6 @@ const TodoItem = (props) => {
 };
 
 export default function Home() {
-  const router = useRouter();
-  const token = Cookies.get("jwt_token");
-  if (token === undefined) {
-    Router.push("/login");
-  }
   const [todoList, setTodoList] = useState([]);
   const addTodo = async (e) => {
     setTodoList((prev) => [
@@ -69,6 +67,9 @@ export default function Home() {
         todo: e.target.textContent,
         status: "PENDING",
       }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     };
     const request = await fetch(`${uri}/todos/`, options);
     if (!request.ok) {
