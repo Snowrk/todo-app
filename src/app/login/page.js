@@ -9,10 +9,6 @@ const uri = "http://localhost:3000";
 
 export default function Login() {
   const router = useRouter();
-  const token = Cookies.get("jwt_token");
-  if (token !== undefined) {
-    router.replace("/");
-  }
   const [register, setRegister] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -32,7 +28,10 @@ export default function Login() {
       if (request.ok) {
         Cookies.set("jwt_token", response.jwtToken);
         Cookies.set("userId", response.dbUser?.userId);
+        console.log(router);
         router.replace("/");
+      } else {
+        setErr(response.err);
       }
     } else {
       setErr("Please fill all the details");
@@ -53,6 +52,8 @@ export default function Login() {
         Cookies.set("jwt_token", response.jwtToken);
         Cookies.set("userId", response.newUserId);
         router.replace("/");
+      } else {
+        setErr(response.err);
       }
     } else {
       setErr("Please fill all the details");
@@ -127,7 +128,7 @@ export default function Login() {
         )}
         <button onClick={login}>Login</button>
         <button onClick={reg}>Register</button>
-        {err.length > 0 && <p>{err}</p>}
+        {err.length > 0 && <p className={styles.error}>{err}</p>}
       </div>
     </div>
   );

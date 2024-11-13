@@ -20,6 +20,16 @@
   display: block;
 }
 
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.error {
+  color: red;
+}
+
 .inp {
   display: flex;
   align-items: center;
@@ -50,7 +60,7 @@
   margin-top: 1rem;
 }
 
-.todoItem > input:checked + p {
+.done {
   text-decoration: line-through;
 }
 
