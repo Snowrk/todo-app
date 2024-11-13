@@ -38,27 +38,28 @@ const TodoItem = (props) => {
   };
   return (
     <div className={styles.todoItem}>
-      <p>{item.task}</p>
+      <p>{item.todo}</p>
       <div>
         <label htmlFor="status">status</label>
-        <select id="status" value={status} onChange={() => updateTodo}>
+        <select id="status" value={status} onChange={updateTodo}>
           <option value="DONE">done</option>
           <option value="IN PROGRESS">in progress</option>
           <option value="PENDING">pending</option>
           <option value="COMPLETED">completed</option>
         </select>
       </div>
-      <button onClick={() => deleteTodo}>Delete</button>
+      <button onClick={deleteTodo}>Delete</button>
     </div>
   );
 };
 
 export default function Home() {
   const [todoList, setTodoList] = useState([]);
+  const [todo, setTodo] = useState("");
   const addTodo = async (e) => {
     setTodoList((prev) => [
       ...prev,
-      { id: uuidv4(), todo: e.target.textContent, status: "PENDING" },
+      { id: uuidv4(), todo: todo, status: "PENDING" },
     ]);
     const options = {
       method: "POST",
@@ -78,6 +79,7 @@ export default function Home() {
   };
   useEffect(() => {
     const getData = async () => {
+      const id = 2;
       const options = {
         method: "GET",
       };
@@ -96,8 +98,14 @@ export default function Home() {
       <h1>Todo Application</h1>
       <div>
         <div className={styles.inp}>
-          <input type="text" id="addTodo" placeholder="addTodo" />
-          <button onClick={() => addTodo}>Add</button>
+          <input
+            type="text"
+            id="addTodo"
+            placeholder="addTodo"
+            value={todo}
+            onChange={(e) => setTodo(e.target.value)}
+          />
+          <button onClick={addTodo}>Add</button>
         </div>
         <div>
           {todoList.map((item) => (
