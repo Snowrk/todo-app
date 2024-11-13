@@ -1,95 +1,109 @@
-import Image from "next/image";
+"use client";
+
 import styles from "./page.module.css";
+import { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
+import Cookies from "js-cookie";
+import { useRouter } from "next/router";
+
+const uri = "http://localhost:3000";
+
+const TodoItem = (props) => {
+  const { item } = props;
+  const [status, setStatus] = useState(item.status);
+  const updateTodo = async (e) => {
+    setStatus(e.target.value);
+    const id = item.id;
+    const options = {
+      method: "PUT",
+      body: JSON.stringify({ status: e.target.value }),
+    };
+    const request = await fetch(`${uri}/todos/${id}/`, options);
+    if (!request.ok) {
+      console.log("error updating the record");
+    }
+  };
+  const deleteTodo = async () => {
+    setTodoList((prev) => [...prev].filter((todo) => todo.id !== item.id));
+    const options = {
+      method: "DELETE",
+    };
+    const request = await fetch(`${uri}/todos/${id}/`, options);
+    if (!request.ok) {
+      console.log("error deleting the record");
+    }
+  };
+  return (
+    <div className={styles.todoItem}>
+      <p>{item.task}</p>
+      <div>
+        <label htmlFor="status">status</label>
+        <select id="status" value={status} onChange={() => updateTodo}>
+          <option value="DONE">done</option>
+          <option value="IN PROGRESS">in progress</option>
+          <option value="PENDING">pending</option>
+          <option value="COMPLETED">completed</option>
+        </select>
+      </div>
+      <button onClick={() => deleteTodo}>Delete</button>
+    </div>
+  );
+};
 
 export default function Home() {
+  const router = useRouter();
+  const token = Cookies.get("jwt_token");
+  if (token === undefined) {
+    Router.push("/login");
+  }
+  const [todoList, setTodoList] = useState([]);
+  const addTodo = async (e) => {
+    setTodoList((prev) => [
+      ...prev,
+      { id: uuidv4(), todo: e.target.textContent, status: "PENDING" },
+    ]);
+    const options = {
+      method: "POST",
+      body: JSON.stringify({
+        id: uuidv4(),
+        todo: e.target.textContent,
+        status: "PENDING",
+      }),
+    };
+    const request = await fetch(`${uri}/todos/`, options);
+    if (!request.ok) {
+      console.log("error inserting the todo");
+    }
+  };
+  useEffect(() => {
+    const getData = async () => {
+      const options = {
+        method: "GET",
+      };
+      const request = await fetch(`${uri}/todos/${id}/`, options);
+      const response = await request.json();
+      if (request.ok) {
+        setTodoList(response);
+        console.log(response);
+      }
+    };
+    getData();
+  }, []);
+
   return (
     <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+      <h1>Todo Application</h1>
+      <div>
+        <div className={styles.inp}>
+          <input type="text" id="addTodo" placeholder="addTodo" />
+          <button onClick={() => addTodo}>Add</button>
         </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <div>
+          {todoList.map((item) => (
+            <TodoItem item={item} key={item.id} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
