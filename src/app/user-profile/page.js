@@ -6,7 +6,7 @@ import styles from "../page.module.css";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const uri = "http://localhost:3000";
+const uri = process.env.API_BASE_URL;
 
 export default function UserProfile() {
   const router = useRouter();

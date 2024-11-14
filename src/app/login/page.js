@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
-const uri = "http://localhost:3000";
+const uri = process.env.API_BASE_URL;
 
 export default function Login() {
   const router = useRouter();

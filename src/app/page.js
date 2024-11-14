@@ -7,7 +7,7 @@ import Cookies from "js-cookie";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const uri = "http://localhost:3000";
+const uri = process.env.API_BASE_URL;
 
 const TodoItem = (props) => {
   const { item, setTodoList } = props;
