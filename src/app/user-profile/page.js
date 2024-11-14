@@ -6,7 +6,7 @@ import styles from "../page.module.css";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
-const uri = process.env.API_BASE_URL;
+const uri = "https://todo-mongodb.vercel.app";
 
 export default function UserProfile() {
   const router = useRouter();

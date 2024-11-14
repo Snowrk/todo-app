@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
-const uri = process.env.API_BASE_URL;
+const uri = "https://todo-mongodb.vercel.app";
 
 export default function Login() {
   const router = useRouter();

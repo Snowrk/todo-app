@@ -7,7 +7,7 @@ import Cookies from "js-cookie";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-const uri = process.env.API_BASE_URL;
+const uri = "https://todo-mongodb.vercel.app";
 
 const TodoItem = (props) => {
   const { item, setTodoList } = props;
