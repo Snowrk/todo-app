@@ -11,7 +11,7 @@ const uri = "http://localhost:3000";
 
 const TodoItem = (props) => {
   const { item, setTodoList } = props;
-  console.log(item.status);
+  const token = Cookies.get("jwt_token");
   const id = item.id;
   const [status, setStatus] = useState(item.status);
   const updateTodo = async (e) => {
@@ -25,6 +25,7 @@ const TodoItem = (props) => {
       body: JSON.stringify({ status: e.target.value }),
       headers: {
         "Content-Type": "application/json",
+        authorization: `bearer ${token}`,
       },
     };
     const request = await fetch(`${uri}/todos/${id}/`, options);
@@ -36,6 +37,9 @@ const TodoItem = (props) => {
     setTodoList((prev) => [...prev].filter((todo) => todo.id !== item.id));
     const options = {
       method: "DELETE",
+      headers: {
+        authorization: `bearer ${token}`,
+      },
     };
     const request = await fetch(`${uri}/todos/${id}/`, options);
     if (!request.ok) {
@@ -71,24 +75,21 @@ export default function Home() {
   const router = useRouter();
   const [todoList, setTodoList] = useState([]);
   const [todo, setTodo] = useState("");
-  const userId = Cookies.get("userId");
   const token = Cookies.get("jwt_token");
   const path = token ? "/user-profile" : "/login";
   const addTodo = async (e) => {
-    setTodoList((prev) => [
-      ...prev,
-      { id: uuidv4(), todo: todo, status: "PENDING" },
-    ]);
+    const id = uuidv4();
+    setTodoList((prev) => [...prev, { id: id, todo: todo, status: "PENDING" }]);
     const options = {
       method: "POST",
       body: JSON.stringify({
-        id: uuidv4(),
+        id: id,
         todo: todo,
         status: "PENDING",
-        userId: userId,
       }),
       headers: {
         "Content-Type": "application/json",
+        authorization: `bearer ${token}`,
       },
     };
     const request = await fetch(`${uri}/todos/`, options);
@@ -98,19 +99,20 @@ export default function Home() {
   };
   const logout = () => {
     Cookies.remove("jwt_token");
-    Cookies.remove("userId");
     router.replace("/login");
   };
   useEffect(() => {
     const getData = async () => {
       const options = {
         method: "GET",
+        headers: {
+          authorization: `bearer ${token}`,
+        },
       };
-      const request = await fetch(`${uri}/todos/${userId}/`, options);
+      const request = await fetch(`${uri}/todos/`, options);
       const response = await request.json();
       if (request.ok) {
         setTodoList(response);
-        console.log(response);
       }
     };
     getData();

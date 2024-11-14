@@ -1,7 +1,7 @@
 "use client";
 
 import styles from "../page.module.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
@@ -14,6 +14,12 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPass] = useState("");
   const [err, setErr] = useState("");
+  useEffect(() => {
+    const token = Cookies.get("jwt_token");
+    if (token !== undefined) {
+      router.replace("/");
+    }
+  });
   const sendLogin = async () => {
     if (email !== "" && password !== "") {
       const options = {
@@ -27,8 +33,6 @@ export default function Login() {
       const response = await request.json();
       if (request.ok) {
         Cookies.set("jwt_token", response.jwtToken);
-        Cookies.set("userId", response.dbUser?.userId);
-        console.log(router);
         router.replace("/");
       } else {
         setErr(response.err);
@@ -50,7 +54,6 @@ export default function Login() {
       const response = await request.json();
       if (request.ok) {
         Cookies.set("jwt_token", response.jwtToken);
-        Cookies.set("userId", response.newUserId);
         router.replace("/");
       } else {
         setErr(response.err);

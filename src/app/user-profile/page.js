@@ -1,7 +1,7 @@
 "use client";
 
 import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import styles from "../page.module.css";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -10,8 +10,7 @@ const uri = "http://localhost:3000";
 
 export default function UserProfile() {
   const router = useRouter();
-  const userId = Cookies.get("userId");
-  const token = Cookies.get("jwt_token");
+  const token = useRef(Cookies.get("jwt_token"));
   const path = token ? "/" : "/login";
   const [edit, setEdit] = useState(false);
   const [name, setName] = useState("");
@@ -21,7 +20,6 @@ export default function UserProfile() {
   const [msg, setMsg] = useState("");
   const logout = () => {
     Cookies.remove("jwt_token");
-    Cookies.remove("userId");
     router.replace("/login");
   };
   const changePass = async () => {
@@ -30,22 +28,39 @@ export default function UserProfile() {
       body: JSON.stringify({ password, pass }),
       headers: {
         "Content-Type": "application/json",
+        authorization: `bearer ${token.current}`,
       },
     };
-    const request = await fetch(`${uri}/users/${userId}/password`, options);
+    const request = await fetch(`${uri}/users/password`, options);
     const response = await request.json();
     setMsg(response.msg);
   };
   const commitChanges = async () => {
-    const options = {
+    const options1 = {
       method: "PUT",
-      body: JSON.stringify({ name, email }),
+      body: JSON.stringify({ name }),
       headers: {
         "Content-Type": "application/json",
+        authorization: `bearer ${token.current}`,
       },
     };
-    const request = await fetch(`${uri}/users/${userId}`, options);
-    if (!request.ok) {
+    const options2 = {
+      method: "PUT",
+      body: JSON.stringify({ email }),
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `bearer ${token.current}`,
+      },
+    };
+    const request1 = await fetch(`${uri}/users/name/`, options1);
+    const request2 = await fetch(`${uri}/users/email/`, options2);
+    const response2 = await request2.json();
+    if (request2.ok) {
+      Cookies.remove("jwt_token");
+      Cookies.set("jwt_token", response2.jwtToken);
+      token.current = Cookies.get("jwt_token");
+    }
+    if (!request1.ok || !request2.ok) {
       console.log("error changing profile details");
     }
     setEdit(false);
@@ -55,12 +70,11 @@ export default function UserProfile() {
       const options = {
         method: "GET",
         headers: {
-          authorization: `bearer ${token}`,
+          authorization: `bearer ${token.current}`,
         },
       };
-      const request = await fetch(`${uri}/profile/${userId}`, options);
+      const request = await fetch(`${uri}/profile/`, options);
       const response = await request.json();
-      console.log(response);
       if (request.ok) {
         setName(response.name);
         setEmail(response.email);
@@ -91,7 +105,7 @@ export default function UserProfile() {
             <input
               type="email"
               value={email}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               className={styles.customInp}
             />
           </>
